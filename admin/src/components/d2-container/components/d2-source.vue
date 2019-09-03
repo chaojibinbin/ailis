@@ -33,7 +33,7 @@ export default {
   mounted () {
     // 一秒后显示按钮
     setTimeout(() => {
-      this.isActive = true
+      this.isActive = false
     }, 500)
   },
   methods: {

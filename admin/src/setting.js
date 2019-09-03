@@ -31,6 +31,12 @@ export default {
   // 注册的主题
   theme: {
     list: [
+		{
+		  title: '流星',
+		  name: 'star',
+		  backgroundImage: 'image/theme/star/bg.jpg',
+		  preview: 'image/theme/star/preview@2x.png'
+		},
       {
         title: 'd2admin 经典',
         name: 'd2',
@@ -47,12 +53,7 @@ export default {
         backgroundImage: 'image/theme/line/bg.jpg',
         preview: 'image/theme/line/preview@2x.png'
       },
-      {
-        title: '流星',
-        name: 'star',
-        backgroundImage: 'image/theme/star/bg.jpg',
-        preview: 'image/theme/star/preview@2x.png'
-      },
+      
       {
         title: 'Tomorrow Night Blue (vsCode)',
         name: 'tomorrow-night-blue',
