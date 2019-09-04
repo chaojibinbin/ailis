@@ -106,7 +106,6 @@
 
 <style scoped="scoped">
 	.chuangjian{
-	
 		display: flex;
 		flex-direction: row-reverse;
 	}
