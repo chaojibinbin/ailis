@@ -27,7 +27,8 @@ const frameIn = [
         name: 'usermanage',
         meta: {
           title: '用户管理',
-          auth: true
+          auth: true,
+		  
         },
         component: _import('back/usermanage')
       },

@@ -16,7 +16,7 @@
         width="300">
         <template slot-scope="scope">
           <i class="el-icon-s-custom"></i>
-          <span style="margin-left: 10px">{{ scope.row.username }}</span>
+          <span style="margin-left: 10px">{{ scope.row.user }}</span>
         </template>
       </el-table-column>
 	  <el-table-column
@@ -56,7 +56,7 @@
 			<el-dialog title="用户编辑" :visible.sync="dialogFormVisible">
 			  <el-form >
 			    <el-form-item label="账号" :label-width="formLabelWidth">
-			      <el-input v-model="scope.row.username" ></el-input>
+			      <el-input v-model="scope.row.user" ></el-input>
 			    </el-form-item>
 				<el-form-item label="名字" :label-width="formLabelWidth">
 				  <el-input v-model="scope.row.name" ></el-input>
@@ -108,20 +108,20 @@
 	 <div class="chuangjian">
 		<!-- 创建弹出窗 -->
 		 <el-dialog title="创建用户" :visible.sync="uesrcreatdialogFormVisible">
-		   <el-form :model="usercreat" >
-		     <el-form-item label="账号" :label-width="formLabelWidth">
-		       <el-input v-model="usercreat.username" ></el-input>
+		   <el-form :model="usercreat" ref='creatform' :rules="creatrules">
+		     <el-form-item label="账号" :label-width="formLabelWidth" prop='user'>
+		       <el-input v-model="usercreat.user" ></el-input>
 		     </el-form-item>
-		 	<el-form-item label="名字" :label-width="formLabelWidth">
+		 	<el-form-item label="名字" :label-width="formLabelWidth" prop='name'>
 		 	  <el-input v-model="usercreat.name" ></el-input>
 		 	</el-form-item>
-		 	<el-form-item label="密码" :label-width="formLabelWidth">
+		 	<el-form-item label="密码" :label-width="formLabelWidth" prop='password'>
 		 	  <el-input v-model="usercreat.password" ></el-input>
 		 	</el-form-item>
-		 	<el-form-item label="其他信息" :label-width="formLabelWidth">
+		 	<el-form-item label="其他信息" :label-width="formLabelWidth" prop='other'>
 		 	  <el-input v-model="usercreat.other" ></el-input>
 		 	</el-form-item>
-		 	<el-form-item label="账号状态" :label-width="formLabelWidth">
+		 	<el-form-item label="账号状态" :label-width="formLabelWidth" prop='region'>
 		 	      <el-select v-model="usercreat.region" placeholder="请选择状态">
 		 	        <el-option label="停用" value="停用"></el-option>
 		 	        <el-option label="启用" value="正常"></el-option>
@@ -129,12 +129,12 @@
 		     </el-form-item>
 			 </el-form>
 			   <div slot="footer" class="dialog-footer">
-			     <el-button @click="uesrcreatdialogFormVisible = false">取 消</el-button>
-			     <el-button type="primary" @click="uesrcreatdialogFormVisible = false,usercreatmethod()">确 定</el-button>
+			     <el-button @click="creatformvisible">取 消</el-button>
+			     <el-button type="primary" @click="creatsubmit">确 定</el-button>
 			   </div>
 			 </el-dialog>
 			 <!-- 创建按钮 -->
-		 <el-button class="cjc" type="primary" @click="uesrcreatdialogFormVisible=true">创建用户</el-button>
+		 <el-button class="cjc" type="primary" @click="creatformvisible">创建用户</el-button>
 	 </div>
 
 </template>
@@ -142,23 +142,81 @@
 </template>
 
 <script>
-	import { mapActions,mapState } from 'vuex'
+	import { mapActions,mapState,mapGetters} from 'vuex'
 	
 	export default {
 	  data() {
 	        return {
-				        dialogFormVisible: false,    
-				        formLabelWidth: '120px',
+		dialogFormVisible: false,    
+		formLabelWidth: '120px',
 				//删除编辑框显示
 		   deletevisible:false,
-		   uesrcreatdialogFormVisible:false,//创建框显示
+		creatrules:{
+		  user:[{
+            required: true,
+            message: '请输入账号',
+            trigger: 'blur'
+          }],
+		  name:[{
+            required: true,
+            message: '请输入用户名',
+            trigger: 'blur'
+          }],
+		  password:[{
+            required: true,
+            message: '请输入密码',
+            trigger: 'blur'
+          }],
+		  other:[{
+            required: true,
+            message: '请输入其他信息',
+            trigger: 'blur'
+          }],
+		  region:[{
+            required: true,
+            message: '请输入选择状态',
+            trigger: 'blur'
+          }]
+			 
+			 
+			  
+		}
 	   
 	        }
 	      },
 	      methods: {
 			...mapActions('back/user',[
-				'getlist'
+				'getlist',
+				'creatformvisible',
+				'creatuser'
 			]),
+			creatsubmit(){
+				this.$refs.creatform.validate((valid) => {
+				  if (valid) {
+				    // zhuce 
+				  
+				    this.creatuser({
+				     name:this.usercreat.name,
+					 password:this.usercreat.password,
+					 user:this.usercreat.user,
+					 region:this.usercreat.region,
+					 other:this.usercreat.other
+				    })
+				      .then(() => {
+				        // 
+						this.getlist()
+				     //  this.creatformvisible()
+				      })
+				  } else {
+				    // 登录表单校验失败
+				    this.$message.error('提交失败，请检查输入信息是否正确')
+				  }
+				})
+				
+				
+				
+			},
+			
 	        handleEdit(index, row) {
 			 		
 	          console.log(index, row);
@@ -166,25 +224,24 @@
 	        handleDelete(index, row) {
 	          console.log(index, row);
 	        },
-			usercreatmethod(){
-				
-				alert('我要创建用户了')
-				
-			},
+		
 			
 		
 	      },
-		  name: 'usermanage',
-		  computed:mapState('back/user',[
-			  'userform',
-			  'usercreat'
-		  ]),
-		  beforeMount() {
-		  	this.getlist();
+	
+	
+	
+	
+		  computed:{
+			
+			...mapGetters('back/user',{
+						userform:'getuserform',
+						usercreat:'getusercreat',
+						uesrcreatdialogFormVisible:'getuesrcreatdialogFormVisible'
+					 }),  
 		  },
-		  mounted() {
-			    	console.log('....')
-		  	console.log(this.userform)
+		  created() {
+		  	this.getlist();
 		  }
 	}
 </script>
