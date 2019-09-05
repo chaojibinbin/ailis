@@ -142,37 +142,12 @@
 </template>
 
 <script>
+	import { mapActions,mapState } from 'vuex'
+	
 	export default {
 	  data() {
-		  
 	        return {
-				        dialogFormVisible: false,
-				        userform: [{
-						  date: '2016-05-02',
-				          name: '手打',				
-						  password: 'sdasdad',
-						  username: '51113594',
-				          region: '11111',
-						  other: '上海市普陀区金沙江路 1518 弄',
-						  uuid:'001'
-				        },
-						{
-						  date: '2016-05-02',
-						  name: '手打',				
-						  password: 'sdasdad',
-						  username: '51113594',
-						  region: '11111',
-						  other: '上海市普陀区金沙江路 1518 弄',
-						  uuid:'002'
-						}],
-						usercreat: {
-						  date: '2016-05-02',
-						  name: '',
-						  password: '',
-						  username: '',
-						  region: '',
-						  other: ''
-						},
+				        dialogFormVisible: false,    
 				        formLabelWidth: '120px',
 				//删除编辑框显示
 		   deletevisible:false,
@@ -181,7 +156,11 @@
 	        }
 	      },
 	      methods: {
+			...mapActions('back/user',[
+				'getlist'
+			]),
 	        handleEdit(index, row) {
+			 		
 	          console.log(index, row);
 	        },
 	        handleDelete(index, row) {
@@ -193,9 +172,20 @@
 				
 			},
 			
-			
+		
 	      },
-		  name: 'usermanage'
+		  name: 'usermanage',
+		  computed:mapState('back/user',[
+			  'userform',
+			  'usercreat'
+		  ]),
+		  beforeMount() {
+		  	this.getlist();
+		  },
+		  mounted() {
+			    	console.log('....')
+		  	console.log(this.userform)
+		  }
 	}
 </script>
 
