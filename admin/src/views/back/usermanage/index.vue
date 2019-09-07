@@ -36,7 +36,7 @@
 	    label="状态"
 	    width="300">
 	    <template slot-scope="scope">
-	  <div slot="reference" class="name-wrapper">
+	    <div slot="reference" class="name-wrapper">
 	    <el-tag size="medium">{{ scope.row.region}}</el-tag>
 	  </div>
 	    </template>
@@ -49,58 +49,19 @@
             size="mini"
 			type="primary" 
 			icon="el-icon-edit"
-            @click="dialogFormVisible = true">编辑</el-button>
+            @click="handleEdit(scope.row)">编辑</el-button>
 			
-	<!-- 编辑弹出窗 -->
+	<!--shanchu-->		
+			<el-button
+			  style="margin-left: 0.4em;"
+			  size="mini"
+						type="danger" 
+						icon="el-icon-edit"
+			  @click="handledelete(scope.row)">删除</el-button>
 			
-			<el-dialog title="用户编辑" :visible.sync="dialogFormVisible">
-			  <el-form >
-			    <el-form-item label="账号" :label-width="formLabelWidth">
-			      <el-input v-model="scope.row.user" ></el-input>
-			    </el-form-item>
-				<el-form-item label="名字" :label-width="formLabelWidth">
-				  <el-input v-model="scope.row.name" ></el-input>
-				</el-form-item>
-				<el-form-item label="密码" :label-width="formLabelWidth">
-				  <el-input v-model="scope.row.password" ></el-input>
-				</el-form-item>
-				<el-form-item label="其他信息" :label-width="formLabelWidth">
-				  <el-input v-model="scope.row.other" ></el-input>
-				</el-form-item>
-				<el-form-item label="账号状态" :label-width="formLabelWidth">
-				      <el-select v-model="scope.row.region" placeholder="请选择状态">
-				        <el-option label="停用" value="停用"></el-option>
-				        <el-option label="启用" value="正常"></el-option>
-				      </el-select>
-			    </el-form-item>
+			
+			
 		
-			  </el-form>
-			  <div slot="footer" class="dialog-footer">
-			    <el-button @click="dialogFormVisible = false">取 消</el-button>
-			    <el-button type="primary" @click="dialogFormVisible = false,handleEdit(scope.row)">确 定</el-button>
-			  </div>
-			</el-dialog>
-			
-			
-			
-			
-		<!-- 	//删除操作 -->
-			<el-popover
-			  placement="top"
-			  width="160"
-			  v-model="deletevisible">
-			  <p>确认删除这个用户吗？</p>
-			  <div style="text-align: right; margin: 0">
-			    <el-button size="mini" type="text" @click="deletevisible = false">取消</el-button>
-			    <el-button type="primary" size="mini" @click="deletevisible = false">确定</el-button>
-			  </div>
-			 <el-button
-			   size="mini"
-			   type="danger"
-			     style="margin-left: 0.4em;"
-			   icon="el-icon-delete"
-			   slot="reference">删除</el-button>
-			</el-popover>
         </template>
       </el-table-column>
     </el-table>
@@ -135,8 +96,37 @@
 			 </el-dialog>
 			 <!-- 创建按钮 -->
 		 <el-button class="cjc" type="primary" @click="creatformvisible">创建用户</el-button>
+		 
+		<!-- 用户编辑 -->
+		 <el-dialog title="用户编辑" :visible.sync="dialogFormVisible" >
+		   <el-form >
+		     <el-form-item label="账号" :label-width="formLabelWidth" >
+		       <el-input v-model="form.user" ></el-input>
+		     </el-form-item>
+		 	<el-form-item label="名字" :label-width="formLabelWidth" >
+		 	  <el-input v-model="form.name" ></el-input>
+		 	</el-form-item>
+		 	<el-form-item label="密码" :label-width="formLabelWidth" >
+		 	  <el-input v-model="form.password" ></el-input>
+		 	</el-form-item>
+		 	<el-form-item label="其他信息" :label-width="formLabelWidth" >
+		 	  <el-input v-model="form.other" ></el-input>
+		 	</el-form-item>
+		 	<el-form-item label="账号状态" :label-width="formLabelWidth" >
+		 	      <el-select v-model="form.region" placeholder="请选择状态">
+		 	        <el-option label="停用" value="停用"></el-option>
+		 	        <el-option label="启用" value="正常"></el-option>
+		 	      </el-select>
+		     </el-form-item>
+		 	
+		   </el-form>
+		   <div slot="footer" class="dialog-footer">
+		     <el-button @click="dialogFormVisible = false">取 消</el-button>
+		     <el-button type="primary" @click="edituser1">确 定</el-button>
+		   </div>
+		 </el-dialog>
 	 </div>
-
+	 
 </template>
 </d2-container>
 </template>
@@ -150,7 +140,8 @@
 		dialogFormVisible: false,    
 		formLabelWidth: '120px',
 				//删除编辑框显示
-		   deletevisible:false,
+		 deletevisible:false,
+		  form:{},
 		creatrules:{
 		  user:[{
             required: true,
@@ -188,13 +179,15 @@
 			...mapActions('back/user',[
 				'getlist',
 				'creatformvisible',
-				'creatuser'
+				'creatuser',
+				'edituser2',
+				'deleteuser'
 			]),
+			
 			creatsubmit(){
 				this.$refs.creatform.validate((valid) => {
 				  if (valid) {
-				    // zhuce 
-				  
+				    // zhuce 		  
 				    this.creatuser({
 				     name:this.usercreat.name,
 					 password:this.usercreat.password,
@@ -205,33 +198,79 @@
 				      .then(() => {
 				        // 
 						this.getlist()
+						
 				     //  this.creatformvisible()
 				      })
 				  } else {
 				    // 登录表单校验失败
 				    this.$message.error('提交失败，请检查输入信息是否正确')
 				  }
-				})
-				
-				
-				
+				})				
 			},
 			
-	        handleEdit(index, row) {
-			 		
-	          console.log(index, row);
+	        handleEdit(row) {
+			  this.form = row
+	          this.dialogFormVisible = true
 	        },
-	        handleDelete(index, row) {
-	          console.log(index, row);
-	        },
-		
+			edituser1(){
+				
+				    // zhuce 		  
+				    this.edituser2({
+				     name:this.form.name,
+					 password:this.form.password,
+					 user:this.form.user,
+					 region:this.form.region,
+					 other:this.form.other,
+					 uuid:this.form.uuid
+				    })
+				      .then(() => {
+				        // 
+					    this.getlist()
+						this.dialogFormVisible = false
+				     //  this.creatformvisible()
+				      })
+				  
+				
+			},
+	         handledelete(value) {
+				 // 删除
+				 
+	                this.$confirm('此操作将永久删除该账号, 是否继续?', '提示', {
+	                  confirmButtonText: '确定',
+	                  cancelButtonText: '取消',
+	                  type: 'warning'
+	                }).then(() => {
 			
-		
+						
+						// 删除
+						this.deleteuser({
+						 name:value.name,
+						 password:value.password,
+						 user:value.user,
+						 region:value.region,
+						 other:value.other,
+						 uuid:value.uuid
+						})
+						  .then(() => {
+						    // 
+							this.$message({
+							  type: 'success',
+							  message: '删除成功!'
+							});
+						    this.getlist()
+							
+						 //  this.creatformvisible()
+						  })
+						
+	                  
+	                }).catch(() => {
+	                  this.$message({
+	                    type: 'info',
+	                    message: '已取消删除'
+	                  });          
+	                });
+	              },	
 	      },
-	
-	
-	
-	
 		  computed:{
 			
 			...mapGetters('back/user',{
