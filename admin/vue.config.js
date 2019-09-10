@@ -89,5 +89,21 @@ module.exports = {
       localeDir: 'locales',
       enableInSFC: true
     }
+  },
+  
+  //跨域设置
+  
+  devServer: {
+    proxy: {
+      '/api':{
+        target: 'http://127.0.0.1:8000/api/v1',
+        ws: true,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/api': ''
+        }
+      }
+    }
   }
+  
 }

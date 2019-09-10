@@ -8,7 +8,7 @@
         width="300">
         <template slot-scope="scope">
           <i class="el-icon-time"></i>
-          <span style="margin-left: 10px">{{ scope.row.date }}</span>
+          <span style="margin-left: 10px">{{ scope.row.created_at }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -95,24 +95,24 @@
 			   </div>
 			 </el-dialog>
 			 <!-- 创建按钮 -->
-		 <el-button class="cjc" type="primary" @click="creatformvisible">创建用户</el-button>
+		 <el-button class="cjc" type="primary" @click="handlecreat">创建用户</el-button>
 		 
 		<!-- 用户编辑 -->
 		 <el-dialog title="用户编辑" :visible.sync="dialogFormVisible" >
-		   <el-form >
-		     <el-form-item label="账号" :label-width="formLabelWidth" >
+		   <el-form :model="form" ref='creatform' :rules="creatrules">
+		     <el-form-item label="账号" :label-width="formLabelWidth" prop='user' >
 		       <el-input v-model="form.user" ></el-input>
 		     </el-form-item>
-		 	<el-form-item label="名字" :label-width="formLabelWidth" >
+		 	<el-form-item label="名字" :label-width="formLabelWidth"  prop='name'>
 		 	  <el-input v-model="form.name" ></el-input>
 		 	</el-form-item>
-		 	<el-form-item label="密码" :label-width="formLabelWidth" >
+		 	<el-form-item label="密码" :label-width="formLabelWidth" prop='password'>
 		 	  <el-input v-model="form.password" ></el-input>
 		 	</el-form-item>
-		 	<el-form-item label="其他信息" :label-width="formLabelWidth" >
+		 	<el-form-item label="其他信息" :label-width="formLabelWidth" prop='other'>
 		 	  <el-input v-model="form.other" ></el-input>
 		 	</el-form-item>
-		 	<el-form-item label="账号状态" :label-width="formLabelWidth" >
+		 	<el-form-item label="账号状态" :label-width="formLabelWidth" prop='region'>
 		 	      <el-select v-model="form.region" placeholder="请选择状态">
 		 	        <el-option label="停用" value="停用"></el-option>
 		 	        <el-option label="启用" value="正常"></el-option>
@@ -185,8 +185,10 @@
 			]),
 			
 			creatsubmit(){
+
 				this.$refs.creatform.validate((valid) => {
 				  if (valid) {
+
 				    // zhuce 		  
 				    this.creatuser({
 				     name:this.usercreat.name,
@@ -196,7 +198,8 @@
 					 other:this.usercreat.other
 				    })
 				      .then(() => {
-				        // 
+				        //
+						  console.log()
 						this.getlist()
 						
 				     //  this.creatformvisible()
@@ -207,14 +210,19 @@
 				  }
 				})				
 			},
-			
+			handlecreat(){
+				this.creatform=this.usercreat
+				this.creatformvisible()
+			},
 	        handleEdit(row) {
 			  this.form = row
 	          this.dialogFormVisible = true
 	        },
 			edituser1(){
 				
-				    // zhuce 		  
+				this.$refs.creatform.validate((valid) => {
+				  if (valid) {
+				    // 		  
 				    this.edituser2({
 				     name:this.form.name,
 					 password:this.form.password,
@@ -229,6 +237,11 @@
 						this.dialogFormVisible = false
 				     //  this.creatformvisible()
 				      })
+					  } else {
+					      // 登录表单校验失败
+					      this.$message.error('提交失败，请检查输入信息是否正确')
+					    }
+					  })	
 				  
 				
 			},

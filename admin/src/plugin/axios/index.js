@@ -43,9 +43,12 @@ const service = axios.create({
 service.interceptors.request.use(
   config => {
     // 在请求发送之前做一些处理
-    const token = util.cookies.get('token')
+    const token = util.cookies.get('access_token')
+	
     // 让每个请求携带token-- ['X-Token']为自定义key 请根据实际情况自行修改
-    config.headers['X-Token'] = token
+    config.headers['Authorization'] = token
+	   config.headers['content-type'] = "application/json"
+	      config.headers['X-Requested-With'] = "XMLHttpRequest"
     return config
   },
   error => {
@@ -71,10 +74,11 @@ service.interceptors.response.use(
       switch (code) {
         case 0:
           // [ 示例 ] code === 0 代表没有错误
+          errorCreate(`${dataAxios.msg}`)
           return dataAxios.data
         case '201':
-          // [ 示例 ] 其它和后台约定的 code
-          errorCreate(`[ code: 201 ] ${dataAxios.msg}: ${response.config.url}`)
+          // 用户名密码错误
+          errorCreate(`${dataAxios.msg}`)
           break
         default:
           // 不是正确的 code
@@ -91,6 +95,7 @@ service.interceptors.response.use(
         case 403: error.message = '拒绝访问'; break
         case 404: error.message = `请求地址出错: ${error.response.config.url}`; break
         case 408: error.message = '请求超时'; break
+        case 409: error.message = '用户名密码错误'; break
         case 500: error.message = '服务器内部错误'; break
         case 501: error.message = '服务未实现'; break
         case 502: error.message = '网关错误'; break
@@ -104,5 +109,6 @@ service.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
 
 export default service

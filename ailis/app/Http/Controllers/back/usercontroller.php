@@ -32,13 +32,16 @@ class usercontroller extends Controller
         $user->save();
 
         return response()->json([
-            'name' => $request->name,
-            'user' => $request->user,
-            'password' => bcrypt($request->password),
-            'region' => $request->region,
-            'other' => $request->other,
-            'message' => '注册成功'
-        ], 201);
+       'data'=>[
+           'msg' => '注册成功',
+
+
+           ],
+
+
+
+
+        ], 200);
     }
 
     /**
@@ -57,10 +60,14 @@ class usercontroller extends Controller
 
         if(!Auth::attempt($credentials))
             return response()->json([
-                'message' => '用户名密码错误',
+               'data'=>[
+                   'msg'=> '用户名密码错误',
                    'user' => $request->user,
-              'password' => $request->password
-            ], 401);
+                   'password' => $request->password,
+
+               ],
+
+            ],409);
 
         $user = $request->user();
 
@@ -69,14 +76,22 @@ class usercontroller extends Controller
 
 
         $token->save();
-
+$name=user::where('user',$request->user)->select('name','uuid')->first();
         return response()->json([
-            'access_token' => $tokenResult->accessToken,
-            'token_type' => 'Bearer',
-            'expires_at' => Carbon::parse(
-                $tokenResult->token->expires_at
-            )->toDateTimeString()
-        ]);
+            'data'=>[
+                'access_token' => $tokenResult->accessToken,
+                'token_type' => 'Bearer',
+                'expires_at' => Carbon::parse(
+                    $tokenResult->token->expires_at
+                )->toDateTimeString(),
+                'name' =>$name->name,
+                'uuid' =>$name->uuid,
+                'msg'=>'登陆成功',
+
+            ],
+
+
+        ],200);
     }
 
     /**
@@ -89,8 +104,9 @@ class usercontroller extends Controller
         $request->user()->token()->revoke();
 
         return response()->json([
-            'message' => '退出成功'
-        ]);
+            'data'=>[  'msg' => '退出成功'],
+
+        ],200);
     }
 
     /**
@@ -105,14 +121,22 @@ class usercontroller extends Controller
 
     public function getuserlist(Request $request)
     {
-        $list=user::all();
-        return response()->json($list);
+        $list=user::select('user','name','password','other','region','created_at')->get();
+        return response()->json(
+            [
+             'data'=> $list ,
+                 'msg'=>'获取列表成功'
+
+
+            ]
+
+        );
     }
     public function edituser(Request $request)
     {
         $user=$request->user;
         $name=$request->name;
-        $password=$request->password;
+        $password=bcrypt($request->password);
         $other=$request->other;
         $region=$request->region;
          user::where('uuid',$request->uuid)
@@ -124,13 +148,21 @@ class usercontroller extends Controller
                 'region'=>$region
             ]);
 
-        return response()->json(['message'=>'更新完成']);
+        return response()->json([
+            'data'=>[
+                'msg'=>'更新完成'
+            ],
+            ],200);
     }
     public function deleteuser(Request $request)
     {
         $deleteuser=$request->uuid;
         $delete=user::where('uuid',$deleteuser);
         $delete->delete();
-        return response()->json(['message'=>'删除成功']);
+        return response()->json([
+            'data'=>[
+                'msg'=>'删除成功'
+            ],
+           ],200);
     }
 }
