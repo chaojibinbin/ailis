@@ -7,8 +7,8 @@ import back from './back'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  modules: {
-    d2admin,
-	back
-  }
+    modules: {
+        d2admin,
+        back
+    }
 })
